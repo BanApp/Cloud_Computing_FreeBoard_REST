@@ -1,44 +1,62 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th = "http://thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>게시글 리스트 페이지</title>
+  <meta charset="UTF-8">
+  <title>게시판</title>
 </head>
-
-<style>
-  .layout{
-      width: 500px;
-      margin: 0 auto;
-      margin-top: 40px;
-  }
-</style>
 <body>
-  <div class="layout">
-    <table>
-      <thead>
-        <tr>
-          <th>글번호</th>
-          <th>제목</th>
-        </tr>
-      </thead>
+<h1>게시판</h1>
 
-      <tbody>
-      <tr th:each="board : ${list}">
-        <td th:text="${board.id}">1</td>
-        <td><a th:text="${board.title}" th:href="@{/board/view(id=${board.id})}"></a></td>
-      </tr>
-      </tbody>
-    </table>
+<!-- 글 작성 폼 -->
+<h2>글 작성</h2>
+<form action="/board/write" method="post">
+  <input type="text" name="title" placeholder="제목" required><br>
+  <textarea name="content" rows="5" placeholder="내용" required></textarea><br>
+  <button type="submit">작성</button>
+</form>
 
-    <th:block th:each="page: ${#numbers.sequence(startPage, endPage)}">
-      <a th:if="${page != nowPage}" th:href="@{/board/list(page=${page-1}, searchKeyword = ${param.searchKeyword})}" th:text="${page}"></a>
-      <strong th:if="${page == nowPage}" th:text="${page}" style="color : red"></strong>
-    </th:block>>
-    <form th:action="@{/board/list}" method="get">
-      <input type="text" name="searchKeyword">
-      <button type="submit">검색</button>
-    </form>
-  </div>
+<!-- 글 목록 -->
+<h2>글 목록</h2>
+<table>
+  <thead>
+  <tr>
+    <th>글번호</th>
+    <th>제목</th>
+  </tr>
+  </thead>
+  <tbody>
+  <!-- 글 목록을 서버에서 받아와서 출력 -->
+  <tr th:each="board : ${boardList}">
+    <td th:text="${board.id}"></td>
+    <td><a th:text="${board.title}" th:href="@{/board/view/{id}(id=${board.id})}"></a></td>
+  </tr>
+  </tbody>
+</table>
 
+<!-- 글 상세보기 -->
+<h2>글 상세보기</h2>
+<!-- 상세보기할 글의 ID를 입력 받음 -->
+<form action="/board/view/{id}" method="get">
+  <input type="number" name="id" placeholder="글번호" required><br>
+  <button type="submit">조회</button>
+</form>
+
+<!-- 글 수정 -->
+<h2>글 수정</h2>
+<!-- 수정할 글의 ID를 입력 받음 -->
+<form action="/board/update/{id}" method="put">
+  <input type="number" name="id" placeholder="글번호" required><br>
+  <input type="text" name="title" placeholder="제목" required><br>
+  <textarea name="content" rows="5" placeholder="내용" required></textarea><br>
+  <button type="submit">수정</button>
+</form>
+
+<!-- 글 삭제 -->
+<h2>글 삭제</h2>
+<!-- 삭제할 글의 ID를 입력 받음 -->
+<form action="/board/delete/{id}" method="delete">
+  <input type="number" name="id" placeholder="글번호" required><br>
+  <button type="submit">삭제</button>
+</form>
 </body>
 </html>

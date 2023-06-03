@@ -1,105 +1,61 @@
 package com.study.board.controller;
-import com.study.board.entity.Board;
 
+import com.study.board.entity.Board;
 import com.study.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.expression.spel.ast.NullLiteral;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Controller
+@RestController
+@RequestMapping("/board")
 public class BoardController {
 
     @Autowired
     private BoardService boardService;
 
-    @GetMapping("/board/write")
-    public String boardWriteForm()
-    {
-        return "boardwrite";
+    // 게시글 작성
+    @PostMapping("/write")
+    public String boardWrite(@RequestBody Board board) {
+        boardService.write(board);
+        return "글 작성이 완료되었습니다!";
     }
 
-    @PostMapping("/board/writepro")
-    public String boardWritePro(Board board, Model model, Integer id, MultipartFile file) throws Exception
-    {
-        boardService.write(board, file);
-
-        model.addAttribute("message","글작성이 완료되었습니다!");
-        model.addAttribute("searchUrl","/board/view?id=" + board.getId());
-        //model.addAttribute("searchUrl","/board/list");
-        return "message";
-    }
-
-    @GetMapping("board/list")
-    public String boardlist(Model model,
-                            @PageableDefault(page = 0, size = 10, sort = "id",
-                                    direction = Sort.Direction.DESC) Pageable pageable,
-                            String searchKeyword)
-    {
-        Page<Board> list = null;
-        if(searchKeyword == null)
-        {
-            list = boardService.boardList(pageable);
+    //게시글 리스트 목록
+    @GetMapping("/list")
+    public Page<Board> boardList(@PageableDefault(page = 0, size = 10, sort = "id",
+            direction = Sort.Direction.DESC) Pageable pageable,
+                                 @RequestParam(required = false) String searchKeyword) {
+        if (searchKeyword == null) {
+            return boardService.boardList(pageable);
+        } else {
+            return boardService.boardSearchList(searchKeyword, pageable);
         }
-        else
-        {
-            list = boardService.boardSearchList(searchKeyword, pageable);
-        }
-
-        int nowPage = list.getPageable().getPageNumber() + 1;
-        int startPage = Math.max(nowPage - 4,1);
-        int endPage = Math.min(nowPage + 5,list.getTotalPages());
-
-        model.addAttribute("list",list);
-        model.addAttribute("nowPage",nowPage);
-        model.addAttribute("startPage",startPage);
-        model.addAttribute("endPage",endPage);
-        return "boardlist";
     }
 
-    @GetMapping("board/view") //localhost:8080/board/view?id=1
-    public String boardView(Model model,Integer id){
-        model.addAttribute("board",boardService.boardView(id));
-        return "boardview";
+    //게시글 조회
+    @GetMapping("/view/{id}")
+    public Board boardView(@PathVariable("id") Integer id) {
+        return boardService.boardView(id);
     }
 
-    @GetMapping("board/delete") //localhost:8080/board/view?id=1
-    public String boardDelete(Integer id,Model model){
+    //게시글 삭제
+    @DeleteMapping("/delete/{id}")
+    public String boardDelete(@PathVariable("id") Integer id) {
         boardService.boardDelete(id);
-
-        model.addAttribute("message","삭제완료!");
-        model.addAttribute("searchUrl","/board/list");
-
-
-        return "message";
+        return "삭제완료!";
     }
 
-    @GetMapping("board/modify/{id}") //localhost:8080/board/view?id=1
-    public String boardModify(@PathVariable("id") Integer id, Model model){
-        model.addAttribute("board",boardService.boardView(id));
-
-        return "boardmodify";
-    }
-
-    @PostMapping("board/update/{id}") //localhost:8080/board/view?id=1
-    public String boardUpdate(@PathVariable("id") Integer id, Board board, MultipartFile file) throws Exception
-    {
-
+    // 게시글 수정
+    @PutMapping("/update/{id}")
+    public String boardUpdate(@PathVariable("id") Integer id, @RequestBody Board board) {
         Board boardTemp = boardService.boardView(id);
         boardTemp.setTitle(board.getTitle());
         boardTemp.setContent(board.getContent());
-
-        boardService.write(boardTemp,file);
-
-        return "redirect:/board/list";
+        boardService.boardUpdate(boardTemp);
+        return "게시글이 업데이트되었습니다!";
     }
 }
