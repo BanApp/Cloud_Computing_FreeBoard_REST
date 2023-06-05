@@ -11,8 +11,12 @@ import lombok.Data;
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
     private String title;
     private String content;
-    private String user_id;
+    private String nickname;
+    private String company;
+    private long user_id;
 }
+
+
