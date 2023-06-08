@@ -1,5 +1,6 @@
 package com.study.board.controller;
 
+import com.study.board.dto.BoardRequestDto;
 import com.study.board.entity.Board;
 import com.study.board.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class BoardController {
 
     // 게시글 작성
     @PostMapping("/write")
-    public String boardWrite(@RequestBody Board board) {
+    public String boardWrite(@RequestBody BoardRequestDto board) {
         boardService.write(board);
         return "글 작성이 완료되었습니다!";
     }

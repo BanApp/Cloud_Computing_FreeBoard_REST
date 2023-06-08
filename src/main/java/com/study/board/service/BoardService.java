@@ -1,5 +1,6 @@
 package com.study.board.service;
 
+import com.study.board.dto.BoardRequestDto;
 import com.study.board.entity.Board;
 import com.study.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,17 @@ public class BoardService {
     private BoardRepository boardRepository;
 
     //글 작성
-    public void write(Board board) {
-        boardRepository.save(board);
+    public void write(BoardRequestDto board) {
+        boardRepository.save(
+                new Board(
+                        0,
+                        board.getTitle(),
+                        board.getContent(),
+                        board.getNickname(),
+                        board.getCompany(),
+                        board.getUser_id()
+                )
+        );
     }
 
     // 게시글 리스트 처리
