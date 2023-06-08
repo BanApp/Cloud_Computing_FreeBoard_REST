@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: freeboard-pod
+spec:
+  containers:
+    - name: freeboard-container
+      image: jmj0801/freeboard:1.0.0
+      ports:
+        - containerPort: 80
